@@ -24,6 +24,14 @@
 ``` console
 $ truffle compile
 $ truffle migrate --reset (왠만하면 붙여주자.. 이걸로 많이 망해봤잖아...)  
-```
+``` 
 - terminal 에서 ganache-cli 돌리고 있었으면 거기에도 보임
 - terminal에서 truffle console 로 들어가면 geth 처럼 사용 가능
+
+## Test
+- test 폴더에 테스트 만들기
+
+```console
+truffle test // test 폴더에 있는 전체 테스트
+truffle test test/... // 하나만 테스트
+```

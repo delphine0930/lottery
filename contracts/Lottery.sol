@@ -22,12 +22,9 @@ contract Lottery {
     uint256 private _tail;
     uint256 private _head;
 
+    event BET(uint256 index, address bettor, uint256 amount, byte challenges, uint256 answerBlockNumber);
     constructor() public {
         owner = msg.sender;
-    }
-
-    function getSomeValue() public pure returns(uint256 value) {
-        return 5;
     }
 
     // smart contract 내부 값을 볼 때는 view 를 이용
@@ -36,7 +33,27 @@ contract Lottery {
     }
 
     // Bet
-      // save the bet to the queue
+    
+    /**
+     * @dev 베팅을 한다. 유저는 0.005 ETH 와 함께 1 bytr 글자를 보낸다.
+     * 큐에 저장된 베팅 정보는 이후 distribute 함수에서 해결
+     * @param challenges 유저가 베팅하는 글자
+     * @return 함수가 잘 수행되었는지 확인하는 bool 값
+     */
+
+    // 사람이 베팅할 때 돈을 보내니까 payable
+    function bet(byte challenges) public payable returns (bool result){
+        // Check the proper ether is sent
+        require(msg.value == BET_AMOUT, "Not enough ETH");
+        
+        // Push bet to the queue
+        require(pushBet(challenges), "Fail to add a new Bet Info");
+        
+        // Emit event
+        emit BET(_tail-1, msg.sender, msg.value, challenges, block.number + BET_BLOCK_INTERVAL);
+
+        return true;
+    }
 
     // Distribute (분배)
       // check the answer
@@ -48,7 +65,7 @@ contract Lottery {
         challenges = b.challenges;
     }
 
-    function pushBet(byte challenges) public returns (bool) {
+    function pushBet(byte challenges) internal returns (bool) {
         BetInfo memory b;
         b.bettor = msg.sender;
         b.answerBlockNumber = block.number + BET_BLOCK_INTERVAL;
@@ -60,7 +77,7 @@ contract Lottery {
         return true;
     }
 
-    function popBet(uint256 index) public returns (bool) {
+    function popBet(uint256 index) internal returns (bool) {
         // delete 를 하면 gas를 돌려받게 된다.
         delete _bets[index];
         return true;

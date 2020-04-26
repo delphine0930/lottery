@@ -35,3 +35,6 @@ $ truffle migrate --reset (왠만하면 붙여주자.. 이걸로 많이 망해�
 truffle test // test 폴더에 있는 전체 테스트
 truffle test test/... // 하나만 테스트
 ```
+- assertRevert.js 와 expectEvent.js 는 openZepplin 을 본따왔다. 
+ : openzeppelin-test-helpers > src > expectEvent.js / expectRevert.js
+- expectEvent 에서는 chai 를 써서, 깔아줘야함(npm install chai)

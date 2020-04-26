@@ -22,6 +22,8 @@ contract Lottery {
     uint256 private _tail;
     uint256 private _head;
 
+    enum BlockStatus {Checkable, NotRevealed, BlockLimitPassed}
+
     event BET(uint256 index, address bettor, uint256 amount, byte challenges, uint256 answerBlockNumber);
     constructor() public {
         owner = msg.sender;
@@ -56,7 +58,53 @@ contract Lottery {
     }
 
     // Distribute (분배)
-      // check the answer
+    function distribute() public {
+        uint256 cur;
+        BetInfo memory b;
+        BlockStatus currentBlockStatus;
+
+        for(cur = _head; cur < _tail; cur++){
+            b = _bets[cur];
+            currentBlockStatus = getBlockStatus(b.answerBlockNumber);
+            // 확인!
+            if(currentBlockStatus == BlockStatus.Checkable){
+                // if win, bettor gets pot
+                
+
+                // if fail, bettor's money goes pot
+
+                // if draw, refund bettor's money
+            }
+
+            // block hash를 확인할 수 없을 때
+            // 1.아직 마이닝 안됐을 떄
+            if(currentBlockStatus == BlockStatus.NotRevealed){
+                break; // 뒤에도 어차피 없으니까
+            }
+            // 2.너무 예전 블록일 때
+            if(currentBlockStatus == BlockStatus.BlockLimitPassed){
+                // refund
+                // emit refund
+            }
+            popBet(cur);
+
+        }
+    }
+
+    function getBlockStatus(uint256 answerBlockNumber) internal view returns(BlockStatus) {
+        if(answerBlockNumber < block.number && block.number < BLOCK_LIMIT + answerBlockNumber) {
+            return BlockStatus.Checkable;
+        }
+        if(answerBlockNumber >= block.number) {
+            return BlockStatus.NotRevealed;
+        }
+        if(block.number >= BLOCK_LIMIT + answerBlockNumber) {
+            return BlockStatus.BlockLimitPassed;
+        }
+
+        // 에러나면 그냥 환불해주는거지..
+        return BlockStatus.BlockLimitPassed;
+    }
 
     function getBetInfo(uint256 index) public view returns (uint256 answerBlockNumber, address bettor, byte challenges) {
         BetInfo memory b = _bets[index];
